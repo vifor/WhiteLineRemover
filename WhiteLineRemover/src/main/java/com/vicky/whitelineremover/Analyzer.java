@@ -6,9 +6,11 @@ package com.vicky.whitelineremover;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -22,40 +24,83 @@ public class Analyzer {
 boolean isWhiteLine = false;
 
  try{
-   // Extract the last line of the image
-            List<Integer> reds = new ArrayList<>();
-            List<Integer> greens = new ArrayList<>();
-            List<Integer> blues = new ArrayList<>();
 
-            for (int x = 0; x < width; x++) {
-                Color color = new Color(image.getRGB(x, height - 1));
-                reds.add(color.getRed());
-                greens.add(color.getGreen());
-                blues.add(color.getBlue());
+// convierto las dos últimas filas a escala de grises
+// tienen que ser dos para detectar presencia de Edges
+
+//BufferedImage greyScalePortion = turnAnalyzedPortionToGray(image);
+/*quiero ver como queda */
+
+  //        File outputFile = new File("greyVersion.jpeg");
+  //          ImageIO.write(greyScalePortion, "jpeg", outputFile);
+
+
+
+       int whitePixelCount = 0;
+
+// recorro ultima linea para confirmar que al menos un 50% de pixels se
+// acercan al blanco en escala de grises
+
+ for (int x = 0; x < width; x++) {
+                      int grayValue = getGrayValue(image.getRGB(x, height-1));
+                    if(grayValue > 240)
+                         whitePixelCount++;
+
+                }
+
+
+                // Calculate the percentage of white pixels
+                double whitePercentage = (double) whitePixelCount / width * 100;
+                System.out.println("Porcentaje de blancos: "+ whitePercentage);
+                // If the row has 95% or more white pixels, enhance the line
+                if (whitePercentage >= 50.0) {
+                
+     // analizo el renglon anterior para ver si es un Edge. Porque, puede ser que cimplemente
+     // es una imagen con fondo blanco o muy clarito
+
+ArrayList modulos = new ArrayList();
+          for (int x = 0; x < width; x++) {
+     
+                     int grayValuePenultima = getGrayValue(image.getRGB(x, height-2));                       
+                       int grayValueUltima = getGrayValue(image.getRGB(x, height-1));
+
+                    modulos.add(Math.abs(grayValuePenultima - grayValueUltima));
+                    System.out.println(grayValuePenultima - grayValueUltima);
+
+                      
             }
 
-            // Calculate mean color
-            int meanRed = (int) reds.stream().mapToInt(Integer::intValue).average().orElse(0);
-            int meanGreen = (int) greens.stream().mapToInt(Integer::intValue).average().orElse(0);
-            int meanBlue = (int) blues.stream().mapToInt(Integer::intValue).average().orElse(0);
-            Color meanColor = new Color(meanRed, meanGreen, meanBlue);
 
-            // Calculate 95th percentile color
-            Collections.sort(reds);
-            Collections.sort(greens);
-            Collections.sort(blues);
-            int p95Index = (int) (0.95 * width);
-            Color p95Color = new Color(reds.get(p95Index), greens.get(p95Index), blues.get(p95Index));
+              if (countGreaterThan80(modulos)> (width * 0.8)) isWhiteLine = true;
+                
+     
 
-            // Print the results
-            System.out.println("Mean Color: " + meanColor);
-            System.out.println("95th Percentile Color: " + p95Color);
-            isWhiteLine = p95Color.equals(Color.WHITE);
+}
         } catch (Exception e) {
             e.printStackTrace();
         }
          
           return isWhiteLine;
    }
+        // Helper method to check if a pixel is white
     
+
+  
+private  int getGrayValue(int pixel) {
+        int red = (pixel >> 16) & 0xFF;
+        int green = (pixel >> 8) & 0xFF;
+        int blue = pixel & 0xFF;
+        // Usar la fórmula de luminancia para calcular el valor en escala de grises
+        return (int)(0.299 * red + 0.587 * green + 0.114 * blue);
+    }
+   public int countGreaterThan80(ArrayList<Integer> list) {
+        int count = 0;
+        for (int number : list) {
+            if (number > 80) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 }
