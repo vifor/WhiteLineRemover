@@ -4,13 +4,9 @@
  */
 package com.vicky.whitelineremover;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.File;
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -25,21 +21,13 @@ boolean isWhiteLine = false;
 
  try{
 
-// convierto las dos últimas filas a escala de grises
-// tienen que ser dos para detectar presencia de Edges
-
-//BufferedImage greyScalePortion = turnAnalyzedPortionToGray(image);
-/*quiero ver como queda */
-
-  //        File outputFile = new File("greyVersion.jpeg");
-  //          ImageIO.write(greyScalePortion, "jpeg", outputFile);
-
-
 
        int whitePixelCount = 0;
 
 // recorro ultima linea para confirmar que al menos un 50% de pixels se
 // acercan al blanco en escala de grises
+// TO DO: hacer que los topes y threshold sean configurables 
+
 
  for (int x = 0; x < width; x++) {
                       int grayValue = getGrayValue(image.getRGB(x, height-1));
@@ -49,14 +37,13 @@ boolean isWhiteLine = false;
                 }
 
 
-                // Calculate the percentage of white pixels
+                // Calculo el %
                 double whitePercentage = (double) whitePixelCount / width * 100;
                 System.out.println("Porcentaje de blancos: "+ whitePercentage);
-                // If the row has 95% or more white pixels, enhance the line
                 if (whitePercentage >= 50.0) {
                 
-     // analizo el renglon anterior para ver si es un Edge. Porque, puede ser que cimplemente
-     // es una imagen con fondo blanco o muy clarito
+     // analizo el renglon anterior para ver si es un Edge. Porque, puede ser 
+     // una imagen con fondo blanco o muy clarito con algun detalle en el último renglón
 
 ArrayList modulos = new ArrayList();
           for (int x = 0; x < width; x++) {
@@ -82,8 +69,8 @@ ArrayList modulos = new ArrayList();
          
           return isWhiteLine;
    }
-        // Helper method to check if a pixel is white
-    
+        // Helper para verificar que un pixel es blanco
+        // tomo 80 como diferencia porque implica una variación sustancial entre colores    
 
   
 private  int getGrayValue(int pixel) {

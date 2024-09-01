@@ -6,10 +6,7 @@ package com.vicky.whitelineremover;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import java.awt.Color;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
@@ -69,7 +66,6 @@ private static File inputFile;
             inputFile = new File(imageName);
             image = ImageIO.read(inputFile);
 
-            // Process the image to remove white lines
             width = image.getWidth();
             height = image.getHeight();
 
